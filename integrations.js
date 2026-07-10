@@ -12,7 +12,7 @@
   // SERVICE CONFIG
   // ════════════════════════════════════════════════════════════════
   const SVC = {
-    ej_key:    'hQKYEZW4bK9xY2BJxqtXE',
+    ej_key:    'uAhtQvBQRr2h0b4OE',
     ej_svc:    'service_7d8xcmm',
     ej_client: 'template_p4ufmc3',
     ej_agent:  'template_0mvt3uj',
