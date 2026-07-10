@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Κόλτσης Χρήστος — QR Ερωτηματολογίου</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<style>
+:root{
+  --primary:#F47920;
+  --accent:#C9A84C;
+  --text-light:#e8edf4;
+  --text-muted:#9aadbe;
+  --card:#12243a;
+  --card-border:rgba(244,121,32,0.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  /* Premium textured dark — ίδιο styling με το ερωτηματολόγιο */
+  background-color:#050810;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 18% 25%, rgba(80,90,110,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 55% at 82% 75%, rgba(60,70,90,0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 90% 50% at 50% 0%, rgba(244,121,32,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 45% at 95% 30%, rgba(40,50,70,0.15) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 5% 70%, rgba(30,40,60,0.18) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(13,27,42,0.4) 0%, rgba(5,8,16,0.95) 80%);
+  background-attachment:fixed;
+  background-size:cover;
+  font-family:'Nunito Sans',sans-serif;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px 16px;
+  color:var(--text-light);
+  position:relative;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  pointer-events:none;
+  z-index:0;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity:0.18;
+  mix-blend-mode:overlay;
+}
+
+h1,h2,h3,.serif{font-family:'Lora',serif}
+
+.qr-card{
+  position:relative;
+  z-index:1;
+  background:rgba(18,36,58,0.65);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--card-border);
+  border-radius:24px;
+  padding:40px 36px 32px;
+  max-width:480px;
+  width:100%;
+  text-align:center;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.5),
+    0 0 80px rgba(244,121,32,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* BRAND HEADER */
+.brand{margin-bottom:18px;}
+.brand-logo{
+  display:block;margin:0 auto 4px;
+  max-width:240px;width:65%;height:auto;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at center, #000 45%, transparent 90%);
+          mask-image:radial-gradient(ellipse 70% 60% at center, #000 45%, transparent 90%);
+  mix-blend-mode:screen;
+  filter:drop-shadow(0 6px 22px rgba(244,121,32,0.45)) contrast(1.05);
+}
+.advisor-role{
+  font-size:11px;
+  color:var(--accent);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-top:6px;
+}
+
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(244,121,32,0.4),transparent);
+  margin:22px 0;
+}
+
+.qr-title{
+  font-size:12px;
+  color:var(--primary);
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  font-weight:700;
+  margin-bottom:10px;
+}
+.qr-subtitle{
+  font-size:19px;
+  color:var(--text-light);
+  font-weight:700;
+  font-family:'Lora',serif;
+  margin-bottom:22px;
+  line-height:1.35;
+}
+
+/* QR FRAME — λευκό κουτί για readability του QR */
+.qr-frame{
+  position:relative;
+  display:inline-block;
+  padding:18px;
+  background:#ffffff;
+  border-radius:18px;
+  margin-bottom:22px;
+  box-shadow:
+    0 0 0 2px var(--primary),
+    0 0 0 5px rgba(244,121,32,0.2),
+    0 10px 40px rgba(244,121,32,0.3);
+}
+.qr-frame::before,.qr-frame::after{
+  content:'';
+  position:absolute;
+  width:22px;height:22px;
+  border:3px solid var(--primary);
+}
+.qr-frame::before{
+  top:-10px;left:-10px;
+  border-right:none;border-bottom:none;
+  border-top-left-radius:8px;
+}
+.qr-frame::after{
+  bottom:-10px;right:-10px;
+  border-left:none;border-top:none;
+  border-bottom-right-radius:8px;
+}
+
+#qrcode{
+  display:flex;justify-content:center;align-items:center;
+  min-width:260px;min-height:260px;
+}
+#qrcode img{display:block;max-width:100%;height:auto}
+#qrcode canvas{display:block}
+
+.scan-hint{
+  font-size:13px;
+  color:var(--text-muted);
+  margin-bottom:18px;
+  line-height:1.7;
+}
+.scan-hint strong{color:var(--text-light);}
+
+/* URL BOX */
+.url-box{
+  background:rgba(13,27,42,0.6);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:11px 14px;
+  font-family:'SF Mono','Courier New',monospace;
+  font-size:11px;
+  color:var(--text-muted);
+  margin-bottom:24px;
+  word-break:break-all;
+  user-select:all;
+}
+
+/* ACTIONS */
+.actions{
+  display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 24px;border-radius:10px;
+  font-family:'Nunito Sans',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;border:none;
+  transition:transform .2s, box-shadow .2s, background .2s;
+  text-decoration:none;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary),#d96510);
+  color:#ffffff;
+  box-shadow:0 4px 16px rgba(244,121,32,.35);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(244,121,32,.5);}
+.btn-ghost{
+  background:transparent;
+  color:var(--primary);
+  border:2px solid var(--primary);
+}
+.btn-ghost:hover{background:rgba(244,121,32,.1);transform:translateY(-2px);}
+
+/* CONTACT FOOTER */
+.contact-footer{
+  margin-top:26px;
+  padding-top:20px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  font-size:12px;
+  color:var(--text-muted);
+  line-height:1.8;
+}
+.contact-footer a{
+  color:var(--primary);
+  text-decoration:none;
+  font-weight:600;
+}
+.contact-footer .ctc-icon{display:inline-block;margin-right:4px}
+
+/* PRINT — clean print layout, λευκό φόντο για κάρτα/εκτύπωση */
+@media print{
+  body{
+    background:#ffffff !important;
+    color:#1a2238 !important;
+    padding:0;
+  }
+  body::before{display:none;}
+  .qr-card{
+    background:#ffffff !important;
+    border:1px solid #ddd;
+    box-shadow:none;
+    color:#1a2238;
+    backdrop-filter:none;
+    page-break-inside:avoid;
+  }
+  .qr-title{color:#F47920;}
+  .qr-subtitle{color:#1a2238;}
+  .scan-hint, .url-box, .contact-footer{color:#666;background:#f8f9fc;}
+  .brand-logo{
+    mix-blend-mode:normal;
+    mask-image:none;
+    -webkit-mask-image:none;
+    filter:none;
+  }
+  .advisor-role{color:#888;}
+  .actions{display:none;}
+  .divider{background:#ddd;}
+}
+
+/* MOBILE */
+@media(max-width:520px){
+  .qr-card{padding:28px 20px;}
+  #qrcode{min-width:220px;min-height:220px;}
+  .qr-subtitle{font-size:17px;}
+}
+</style>
+</head>
+<body>
+
+<div class="qr-card" id="qr-card">
+
+  <!-- BRAND -->
+  <div class="brand">
+    <img src="logo.png" alt="Κόλτσης Χρήστος" class="brand-logo"
+         onerror="this.style.display='none'"/>
+    <div class="advisor-role">Insurance &amp; Financial Advisor</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- QR CODE -->
+  <div class="qr-title">✦ Σκανάρετε για να ξεκινήσετε ✦</div>
+  <div class="qr-subtitle">Ανακαλύψτε τις<br/>Ασφαλιστικές σας Ανάγκες</div>
+
+  <div class="qr-frame">
+    <div id="qrcode"></div>
+  </div>
+
+  <p class="scan-hint">
+    📱 Σαρώστε το QR με την <strong>κάμερα του κινητού σας</strong>.<br/>
+    Σύντομο ερωτηματολόγιο <strong>5 βημάτων</strong> · ~5 λεπτά
+  </p>
+
+  <!-- URL DISPLAY -->
+  <div class="url-box" id="url-box">https://koltsis2002-hash.github.io/--questionnaire/</div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="btn btn-primary" onclick="window.print()">🖨️ Εκτύπωση</button>
+    <button class="btn btn-ghost" onclick="downloadQR()">⬇️ Κατέβασμα PNG</button>
+  </div>
+
+  <!-- CONTACT FOOTER -->
+  <div class="contact-footer">
+    <span class="ctc-icon">📧</span><a href="mailto:koltsis2002@gmail.com">koltsis2002@gmail.com</a>
+    <br/>
+    <span class="ctc-icon">📞</span><a href="tel:6989118348">6989 118 348</a>
+  </div>
+
+</div>
+
+<script>
+const SITE_URL = 'https://koltsis2002-hash.github.io/--questionnaire/';
+
+/* Generate QR with High error correction (30% damage recovery) */
+function generateQR() {
+  const qr = qrcode(0, 'H');
+  qr.addData(SITE_URL);
+  qr.make();
+
+  const container = document.getElementById('qrcode');
+  container.innerHTML = qr.createImgTag(8, 0);
+
+  const img = container.querySelector('img');
+  if (img) {
+    img.style.maxWidth = '260px';
+    img.style.height = 'auto';
+    img.style.display = 'block';
+  }
+}
+
+/* Download QR as 1024x1024 PNG */
+function downloadQR() {
+  const canvas = document.createElement('canvas');
+  const SIZE = 1024;
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, SIZE, SIZE);
+
+  const qr = qrcode(0, 'H');
+  qr.addData(SITE_URL);
+  qr.make();
+
+  const moduleCount = qr.getModuleCount();
+  const cellSize = SIZE / moduleCount;
+
+  ctx.fillStyle = '#000000';
+  for (let r = 0; r < moduleCount; r++) {
+    for (let c = 0; c < moduleCount; c++) {
+      if (qr.isDark(r, c)) {
+        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  const link = document.createElement('a');
+  link.download = 'QR-Ερωτηματολόγιο-Κόλτσης.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+window.addEventListener('DOMContentLoaded', generateQR);
+</script>
+
+</body>
+</html>

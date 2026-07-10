@@ -1,0 +1,51 @@
+{
+  "name": "NN Hellas — Ανάλυση Ασφαλιστικών Αναγκών",
+  "short_name": "NN Ανάλυση",
+  "description": "Εξατομικευμένη ανάλυση ασφαλιστικών αναγκών σε 5 βήματα — Κόλτσης Χρήστος, NN Hellas",
+  "lang": "el",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0E0E10",
+  "background_color": "#0E0E10",
+  "categories": ["finance", "business", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

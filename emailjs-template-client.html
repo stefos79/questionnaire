@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="el">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Times New Roman',Times,serif;color:#1a2238">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f4f6f9;padding:24px 0">
+  <tr><td align="center">
+    <table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.08)">
+
+      <!-- HEADER -->
+      <tr><td style="background:#0d1b2a;padding:24px 32px;color:#ffffff;border-bottom:4px solid #F47920">
+        <div style="font-size:12px;letter-spacing:2px;color:#F47920">✦ Η ΑΣΦΑΛΙΣΤΙΚΗ ΣΑΣ ΑΝΑΛΥΣΗ ✦</div>
+        <h1 style="margin:6px 0 0;font-size:22px;font-weight:700">Αγαπητέ/ή {{client_name}},</h1>
+        <div style="margin-top:4px;font-size:13px;color:#cfd6e4">{{date}}</div>
+      </td></tr>
+
+      <!-- THANK YOU MESSAGE -->
+      <tr><td style="padding:24px 32px 8px">
+        <p style="font-size:14px;line-height:1.7;color:#444;margin:0">
+          Σας ευχαριστώ που ολοκληρώσατε το ερωτηματολόγιο ασφαλιστικών αναγκών. Παρακάτω θα βρείτε την <strong>εξατομικευμένη ανάλυση</strong> των αναγκών σας και τη <strong>συνιστώμενη κάλυψη</strong> βασισμένη στις απαντήσεις σας.
+        </p>
+      </td></tr>
+
+      <!-- CLIENT INFO -->
+      <tr><td style="padding:16px 32px 8px">
+        <h2 style="font-size:15px;color:#1a2238;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;color:#F47920">Τα Στοιχεία σας</h2>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="font-size:14px;line-height:1.8">
+          <tr><td width="140" style="color:#666">👤 Ονοματεπώνυμο:</td><td><strong>{{client_name}}</strong></td></tr>
+          <tr><td style="color:#666">📧 Email:</td><td><strong>{{client_email}}</strong></td></tr>
+          <tr><td style="color:#666">📞 Τηλέφωνο:</td><td><strong>{{client_phone}}</strong></td></tr>
+          <tr><td style="color:#666">🎂 Ηλικία:</td><td><strong>{{client_age}}</strong></td></tr>
+          <tr><td style="color:#666">👨‍👩‍👧 Οικογ. κατάσταση:</td><td><strong>{{family_status}}</strong></td></tr>
+        </table>
+      </td></tr>
+
+      <!-- PROPOSAL -->
+      <tr><td style="padding:16px 32px 8px">
+        <h2 style="font-size:15px;color:#1a2238;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;color:#F47920">Προτεινόμενη Κάλυψη για Εσάς</h2>
+        <p style="font-size:12px;color:#666;margin:0 0 10px;font-style:italic">Τα προγράμματα αναγράφονται με μηνιαίο κόστος, ξεκινώντας από την πιο σημαντική σας ανάγκη.</p>
+        <pre style="background:#f8f9fc;padding:16px;border-radius:8px;white-space:pre-wrap;font-family:'Times New Roman',Times,serif;font-size:13px;line-height:1.7;color:#222;margin:0;border-left:4px solid #F47920">{{proposal_text}}</pre>
+        <p style="font-size:13px;color:#666;margin:12px 0 0">
+          💰 <strong>Μηνιαίος προϋπολογισμός:</strong> €{{monthly_budget}}/μήνα
+          &nbsp;·&nbsp;
+          🧾 <strong>Εκπιπτόμενο:</strong> {{deductible_pref}}{{#deductible_amount}} (€{{deductible_amount}}){{/deductible_amount}}
+        </p>
+      </td></tr>
+
+      <!-- NEEDS HIERARCHY — Podium + Paragraph (μετά την πρόταση) -->
+      <tr><td style="padding:16px 32px 8px">
+        <h2 style="font-size:15px;color:#F47920;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px">Ιεράρχηση Ασφαλιστικών Αναγκών σας</h2>
+
+        <!-- Podium HTML (injected from app) -->
+        {{{podium_html}}}
+
+        <!-- Παράγραφος περιγραφής -->
+        <div style="background:#fff4e6;border-left:4px solid #F47920;border-radius:6px;padding:16px 18px;margin-top:8px">
+          <p style="font-size:14px;line-height:1.8;color:#222;margin:0">{{needs_hierarchy}}</p>
+        </div>
+      </td></tr>
+
+      <!-- DISCLAIMER -->
+      <tr><td style="padding:16px 32px 8px">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+          <tr><td style="background:#fff8e8;border-left:4px solid #C9A84C;padding:12px 16px;border-radius:6px">
+            <div style="font-size:12px;color:#7a6020;font-weight:700;margin-bottom:4px">📌 ΣΗΜΑΝΤΙΚΗ ΣΗΜΕΙΩΣΗ</div>
+            <p style="font-size:12px;line-height:1.6;color:#555;margin:0">
+              Η παραπάνω πρόταση είναι <strong>ενδεικτική</strong> και βασίζεται στις απαντήσεις σας. Για την <strong>πραγματική και οριστική προσφορά</strong> προσαρμοσμένη στις λεπτομέρειές σας, θα συζητήσουμε προσωπικά.
+            </p>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- ACTIONS — ΓΙΑ ΤΟΝ ΠΕΛΑΤΗ (καλεί τον σύμβουλο) -->
+      <tr><td style="padding:24px 32px;text-align:center">
+        <p style="font-size:13px;color:#444;margin:0 0 14px">
+          <strong>Είμαι στη διάθεσή σας για οποιαδήποτε ερώτηση:</strong>
+        </p>
+        <a href="tel:{{advisor_phone}}" style="display:inline-block;background:#F47920;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;margin:4px">📞 Καλέστε με</a>
+        <a href="mailto:{{advisor_email}}" style="display:inline-block;background:#0d1b2a;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;margin:4px">📧 Στείλτε Email</a>
+      </td></tr>
+
+      <!-- FOOTER — Στοιχεία Συμβούλου -->
+      <tr><td style="background:#0d1b2a;color:#cfd6e4;padding:20px 32px;text-align:center">
+        <div style="font-size:15px;font-weight:700;color:#ffffff">{{advisor_name}}</div>
+        <div style="font-size:12px;margin-top:4px;color:#9aadbe">Ασφαλιστικός &amp; Χρηματοοικονομικός Σύμβουλος</div>
+        <div style="height:1px;background:rgba(255,255,255,.1);margin:12px auto;max-width:180px"></div>
+        <div style="font-size:12px;color:#cfd6e4">
+          📧 <a href="mailto:{{advisor_email}}" style="color:#F47920;text-decoration:none;font-weight:600">{{advisor_email}}</a>
+          &nbsp;·&nbsp;
+          📞 <a href="tel:{{advisor_phone}}" style="color:#F47920;text-decoration:none;font-weight:600">{{advisor_phone}}</a>
+        </div>
+        <div style="font-size:10px;margin-top:12px;color:#6a7d92;font-style:italic">
+          Με εκτίμηση.
+        </div>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

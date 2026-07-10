@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="el">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Times New Roman',Times,serif;color:#1a2238">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f4f6f9;padding:24px 0">
+  <tr><td align="center">
+    <table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.08)">
+
+      <!-- HEADER -->
+      <tr><td style="background:#0d1b2a;padding:24px 32px;color:#ffffff;border-bottom:4px solid #F47920">
+        <div style="font-size:12px;letter-spacing:2px;color:#F47920">🔔 ΝΕΟ LEAD</div>
+        <h1 style="margin:6px 0 0;font-size:22px;font-weight:700">{{client_name}}</h1>
+        <div style="margin-top:4px;font-size:13px;color:#cfd6e4">{{date}}</div>
+      </td></tr>
+
+      <!-- CONTACT INFO -->
+      <tr><td style="padding:24px 32px 8px">
+        <h2 style="font-size:15px;color:#1a2238;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;color:#F47920">Στοιχεία Επικοινωνίας</h2>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="font-size:14px;line-height:1.8">
+          <tr><td width="140" style="color:#666">👤 Ονοματεπώνυμο:</td><td><strong>{{client_name}}</strong></td></tr>
+          <tr><td style="color:#666">📧 Email:</td><td><a href="mailto:{{client_email}}" style="color:#F47920;text-decoration:none"><strong>{{client_email}}</strong></a></td></tr>
+          <tr><td style="color:#666">📞 Τηλέφωνο:</td><td><a href="tel:{{client_phone}}" style="color:#F47920;text-decoration:none"><strong>{{client_phone}}</strong></a></td></tr>
+          <tr><td style="color:#666">🎂 Ηλικία:</td><td><strong>{{client_age}}</strong></td></tr>
+          <tr><td style="color:#666">👨‍👩‍👧 Οικογ. κατάσταση:</td><td><strong>{{family_status}}</strong></td></tr>
+        </table>
+      </td></tr>
+
+      <!-- NEEDS HIERARCHY (advisor short text) -->
+      <tr><td style="padding:16px 32px 8px">
+        <h2 style="font-size:15px;color:#1a2238;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;color:#F47920">Ιεράρχηση Αναγκών Πελάτη</h2>
+        <div style="background:#fff4e6;border-left:4px solid #F47920;border-radius:6px;padding:14px 16px">
+          <p style="font-size:14px;line-height:1.7;color:#222;margin:0">{{needs_hierarchy_short}}</p>
+        </div>
+        <p style="font-size:13px;color:#666;margin:12px 0 0">
+          💰 <strong>Budget:</strong> €{{monthly_budget}}/μήνα
+          &nbsp;·&nbsp;
+          🧾 <strong>Εκπιπτόμενο:</strong> {{deductible_pref}}{{#deductible_amount}} (€{{deductible_amount}}){{/deductible_amount}}
+        </p>
+      </td></tr>
+
+      <!-- PROPOSAL -->
+      <tr><td style="padding:16px 32px 8px">
+        <h2 style="font-size:15px;color:#1a2238;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;color:#F47920">Προτεινόμενη Κάλυψη</h2>
+        <pre style="background:#f8f9fc;padding:16px;border-radius:8px;white-space:pre-wrap;font-family:'Times New Roman',Times,serif;font-size:13px;line-height:1.7;color:#222;margin:0;border-left:4px solid #F47920">{{proposal_text}}</pre>
+      </td></tr>
+
+      <!-- ΠΛΗΡΕΣ ΠΡΟΦΙΛ ΠΕΛΑΤΗ -->
+      <tr><td style="padding:16px 32px 8px">
+        <h2 style="font-size:15px;color:#1a2238;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;color:#F47920">Πλήρες Προφίλ Πελάτη</h2>
+        <p style="font-size:12px;color:#666;margin:0 0 10px;font-style:italic">Όλες οι απαντήσεις του πελάτη στο ερωτηματολόγιο.</p>
+        <pre style="background:#f8f9fc;padding:16px;border-radius:8px;white-space:pre-wrap;font-family:'Times New Roman',Times,serif;font-size:13px;line-height:1.7;color:#222;margin:0;border-left:4px solid #C9A84C">{{client_profile}}</pre>
+      </td></tr>
+
+      <!-- ACTIONS -->
+      <tr><td style="padding:24px 32px;text-align:center">
+        <a href="tel:{{client_phone}}" style="display:inline-block;background:#F47920;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;margin:4px">📞 Καλέστε πελάτη</a>
+        <a href="mailto:{{client_email}}" style="display:inline-block;background:#0d1b2a;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;margin:4px">📧 Email πελάτη</a>
+      </td></tr>
+
+      <!-- FOOTER -->
+      <tr><td style="background:#0d1b2a;color:#cfd6e4;padding:16px 32px;text-align:center;font-size:11px">
+        Αυτή είναι αυτόματη ειδοποίηση από το ερωτηματολόγιο NN Hellas.<br/>
+        Δείτε επίσης τη γραμμή στο Google Sheet για πλήρες ιστορικό απαντήσεων.
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

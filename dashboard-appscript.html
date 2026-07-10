@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NN Hellas — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --primary:#F47920; --accent:#C9A84C; --info:#4a9eda;
+  --bg:#050810; --surface:rgba(18,36,58,0.65); --border:rgba(244,121,32,0.18);
+  --text:#e8edf4; --muted:#9aadbe;
+  --success:#4caf70; --warning:#f0c040; --danger:#e05555;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 18% 25%, rgba(80,90,110,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 55% at 82% 75%, rgba(60,70,90,0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 90% 50% at 50% 0%, rgba(244,121,32,0.08) 0%, transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(13,27,42,0.4) 0%, rgba(5,8,16,0.95) 80%);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:'Nunito Sans',sans-serif;
+  font-size:13px;
+  min-height:100vh;
+  position:relative;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  pointer-events:none;
+  z-index:0;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity:0.15;
+  mix-blend-mode:overlay;
+}
+h1,h2,h3{font-family:'Lora',serif}
+
+/* HEADER */
+.hdr{
+  position:relative;z-index:1;
+  background:rgba(5,8,16,0.6);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:18px 32px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+}
+.hdr-left{display:flex;align-items:center;gap:16px;}
+.hdr-logo{
+  width:48px;height:48px;
+  background:linear-gradient(135deg,var(--primary),#d96510);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Lora',serif;font-size:24px;font-weight:700;color:#fff;
+  box-shadow:0 4px 16px rgba(244,121,32,0.4);
+}
+.hdr-left h1{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px;}
+.hdr-left p{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.5px;}
+.hdr-right{font-size:11px;color:var(--muted);text-align:right;}
+#last-updated{color:var(--accent);font-weight:700;}
+.refresh-btn{
+  background:linear-gradient(135deg,var(--primary),#d96510);
+  color:#fff;border:none;
+  padding:9px 18px;border-radius:8px;cursor:pointer;
+  font-size:12px;font-weight:700;font-family:'Nunito Sans',sans-serif;
+  margin-top:8px;
+  box-shadow:0 4px 12px rgba(244,121,32,0.35);
+  transition:transform .2s;
+}
+.refresh-btn:hover{transform:translateY(-1px);}
+
+/* LIVE BADGE */
+.live-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;letter-spacing:.5px;
+  color:#5fcc8a;margin-top:6px;
+}
+.live-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#5fcc8a;
+  box-shadow:0 0 0 0 rgba(95,204,138,0.6);
+  animation:pulse-green 2s infinite;
+}
+@keyframes pulse-green{
+  0%  { box-shadow:0 0 0 0 rgba(95,204,138,0.6); }
+  70% { box-shadow:0 0 0 7px rgba(95,204,138,0); }
+  100%{ box-shadow:0 0 0 0 rgba(95,204,138,0); }
+}
+
+/* NEW DATA TOAST */
+.new-data-toast{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  background:linear-gradient(135deg,#1a3a2a,#14301f);
+  border:1px solid rgba(95,204,138,0.5);
+  border-radius:12px;padding:14px 20px;
+  display:none;align-items:center;gap:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  animation:slide-in .3s ease;
+  cursor:pointer;
+  max-width:300px;
+}
+.new-data-toast.visible{ display:flex; }
+@keyframes slide-in{
+  from{ transform:translateX(120%);opacity:0; }
+  to  { transform:translateX(0);   opacity:1; }
+}
+.toast-icon{ font-size:22px; }
+.toast-text{ flex:1; }
+.toast-title{ font-weight:700;color:#5fcc8a;font-size:13px; }
+.toast-sub  { font-size:11px;color:#9aadbe;margin-top:2px; }
+
+/* LOADING */
+#loading{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:60vh;gap:16px;color:var(--muted);
+}
+.spinner{
+  width:48px;height:48px;
+  border:4px solid rgba(244,121,32,0.15);border-top-color:var(--primary);
+  border-radius:50%;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+#error-box{
+  display:none;
+  background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.35);
+  border-radius:10px;padding:18px 22px;margin:24px;color:#f87;
+}
+
+/* MAIN */
+main{display:none;padding:24px;max-width:1400px;margin:0 auto;position:relative;z-index:1;}
+
+/* SECTION HEADERS */
+.section-label{
+  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--primary);margin:24px 0 12px;
+  display:flex;align-items:center;gap:10px;
+}
+.section-label::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,rgba(244,121,32,0.4),transparent);
+}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:16px;}
+.kpi{
+  background:var(--surface);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  position:relative;overflow:hidden;
+  transition:transform .2s;
+}
+.kpi:hover{transform:translateY(-2px);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--primary);}
+.kpi.life::before{background:var(--accent);}
+.kpi.ret::before{background:var(--info);}
+.kpi.urg::before{background:#9b59b6;}
+.kpi.fam::before{background:#4caf70;}
+.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;}
+.kpi-value{font-size:30px;font-weight:700;color:var(--primary);margin:8px 0 4px;line-height:1;font-family:'Lora',serif;}
+.kpi.life .kpi-value{color:var(--accent);}
+.kpi.ret  .kpi-value{color:var(--info);}
+.kpi.urg  .kpi-value{font-size:18px;color:#b06ee0;}
+.kpi.fam  .kpi-value{color:#5fcc8a;}
+.kpi-sub{font-size:11px;color:var(--muted);}
+
+/* CHART GRID */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px;margin-bottom:16px;}
+.chart-card{
+  background:var(--surface);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--border);
+  border-radius:12px;padding:20px;
+}
+.chart-card.wide{grid-column:1/-1;}
+.chart-title{
+  font-size:13px;font-weight:700;color:var(--text);
+  margin-bottom:14px;padding-bottom:10px;
+  border-bottom:1px solid rgba(244,121,32,0.25);
+  display:flex;align-items:center;gap:8px;
+}
+.chart-wrap{position:relative;height:230px;}
+.chart-wrap.tall{height:300px;}
+
+/* TABLE */
+.table-card{
+  background:var(--surface);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;margin-bottom:24px;
+}
+.table-head{
+  padding:16px 20px;
+  border-bottom:1px solid rgba(244,121,32,0.25);
+  font-weight:700;font-size:14px;color:var(--text);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.table-head span{font-size:11px;color:var(--muted);font-weight:400;}
+table.leads{width:100%;border-collapse:collapse;font-size:12px;}
+table.leads th{
+  background:rgba(13,27,42,0.6);color:var(--muted);
+  padding:10px 12px;text-align:left;
+  font-weight:700;font-size:10px;letter-spacing:.8px;text-transform:uppercase;
+  white-space:nowrap;
+}
+table.leads td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:middle;color:var(--text);}
+table.leads tr:hover td{background:rgba(244,121,32,0.05);}
+table.leads tr:last-child td{border-bottom:none;}
+table.leads a{color:var(--primary);text-decoration:none;font-weight:600;}
+.urg-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.5px;}
+.urg-ΚΡΙΣΙΜΗ{background:rgba(224,85,85,0.18);color:#f87;}
+.urg-ΥΨΗΛΗ{background:rgba(244,121,32,0.18);color:var(--primary);}
+.urg-ΜΕΤΡΙΑ{background:rgba(240,192,64,0.18);color:var(--warning);}
+.urg-ΧΑΜΗΛΗ{background:rgba(76,175,112,0.18);color:#5fcc8a;}
+
+/* SCORE BARS in table */
+.score-bar-wrap{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.score-bar{height:5px;border-radius:3px;background:var(--primary);min-width:8px;}
+.score-bar.l{background:var(--accent);}
+.score-bar.r{background:var(--info);}
+
+@media(max-width:780px){
+  .chart-grid{grid-template-columns:1fr;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  main{padding:16px 12px;}
+  .hdr{padding:14px 16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-logo">K</div>
+    <div>
+      <h1>Dashboard Leads</h1>
+      <p>Χρήστος Κόλτσης · Insurance &amp; Financial Advisor</p>
+    </div>
+  </div>
+  <div class="hdr-right">
+    Τελευταία ενημέρωση: <span id="last-updated">—</span>
+    <br>
+    <button class="refresh-btn" onclick="loadData()">⟳ Ανανέωση</button>
+    <div class="live-badge"><div class="live-dot"></div> Live παρακολούθηση</div>
+  </div>
+</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div>Φόρτωση δεδομένων από Google Sheets…</div>
+</div>
+<div id="error-box"></div>
+
+<main id="main">
+
+  <!-- ─── KPI STRIP ─── -->
+  <div class="section-label">📊 Συνολική Εικόνα</div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Συνολικά Leads</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+      <div class="kpi-sub" id="kpi-week">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Μέσο Budget</div>
+      <div class="kpi-value" id="kpi-budget">—</div>
+      <div class="kpi-sub">€/μήνα</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Μέση Ηλικία</div>
+      <div class="kpi-value" id="kpi-age">—</div>
+      <div class="kpi-sub">ετών</div>
+    </div>
+    <div class="kpi urg">
+      <div class="kpi-label">Συχνότερη Ανάγκη</div>
+      <div class="kpi-value" id="kpi-urg">—</div>
+      <div class="kpi-sub" id="kpi-urg-pct">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Μέσο Score Υγείας</div>
+      <div class="kpi-value" id="kpi-health">—</div>
+      <div class="kpi-sub">/ 100</div>
+    </div>
+    <div class="kpi life">
+      <div class="kpi-label">Μέσο Score Ζωής</div>
+      <div class="kpi-value" id="kpi-life">—</div>
+      <div class="kpi-sub">/ 100</div>
+    </div>
+    <div class="kpi ret">
+      <div class="kpi-label">Μέσο Score Σύνταξης</div>
+      <div class="kpi-value" id="kpi-ret">—</div>
+      <div class="kpi-sub">/ 100</div>
+    </div>
+    <div class="kpi fam">
+      <div class="kpi-label">Οικογένειες (≥2 μέλη)</div>
+      <div class="kpi-value" id="kpi-fam">—</div>
+      <div class="kpi-sub" id="kpi-fam-pct">—</div>
+    </div>
+  </div>
+
+  <!-- ─── TIMELINE ─── -->
+  <div class="section-label">📅 Χρονολογική Εξέλιξη</div>
+  <div class="chart-grid">
+    <div class="chart-card wide">
+      <div class="chart-title">Leads ανά Εβδομάδα (τελευταίες 12)</div>
+      <div class="chart-wrap"><canvas id="c-timeline"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ─── NEEDS ANALYSIS ─── -->
+  <div class="section-label">🎯 Ανάλυση Αναγκών</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">🔴 Κατανομή Επιπέδου Ανάγκης</div>
+      <div class="chart-wrap"><canvas id="c-urgency"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📊 Μέσα Σκόρ Αναγκών</div>
+      <div class="chart-wrap"><canvas id="c-scores"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">⚠️ Ανησυχία για Εισόδημα Οικογένειας</div>
+      <div class="chart-wrap"><canvas id="c-income"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ─── DEMOGRAPHICS ─── -->
+  <div class="section-label">👥 Δημογραφικά</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">🎂 Κατανομή Ηλικίας</div>
+      <div class="chart-wrap"><canvas id="c-age"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">👨‍👩‍👧 Οικογενειακή Κατάσταση</div>
+      <div class="chart-wrap"><canvas id="c-marital"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">👶 Αριθμός Παιδιών</div>
+      <div class="chart-wrap"><canvas id="c-kids"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">💼 Επάγγελμα</div>
+      <div class="chart-wrap"><canvas id="c-occupation"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ─── HEALTH PREFERENCES ─── -->
+  <div class="section-label">🏥 Προτιμήσεις Υγείας</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">😊 Ικανοποίηση από Ταμείο</div>
+      <div class="chart-wrap"><canvas id="c-fund"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🏨 Νοσοκομείο Σοβαρού</div>
+      <div class="chart-wrap"><canvas id="c-hospital-severe"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🔖 Τύπος Εκπιπτόμενου</div>
+      <div class="chart-wrap"><canvas id="c-ded"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">💊 Κάλυψη Σοβαρών Παθήσεων</div>
+      <div class="chart-wrap"><canvas id="c-ci"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🛌 Ημερήσιο Επίδομα Νοσηλείας</div>
+      <div class="chart-wrap"><canvas id="c-mdp"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ─── FINANCIAL & SAVINGS ─── -->
+  <div class="section-label">💰 Οικονομικό Προφίλ &amp; Αποταμίευση</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">💶 Κατανομή Budget (€/μήνα)</div>
+      <div class="chart-wrap"><canvas id="c-budget"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🛡️ Κεφάλαιο Ζωής</div>
+      <div class="chart-wrap"><canvas id="c-life-cap"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📉 Εκτίμηση Κρατικής Σύνταξης</div>
+      <div class="chart-wrap"><canvas id="c-pension"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🎯 Στόχος Αποταμίευσης</div>
+      <div class="chart-wrap"><canvas id="c-target-amt"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">⏳ Ορίζοντας Αποταμίευσης (έτη)</div>
+      <div class="chart-wrap"><canvas id="c-target-years"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📈 Έχει ήδη Αποταμιευτικό Σχέδιο;</div>
+      <div class="chart-wrap"><canvas id="c-savings"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ─── RECENT LEADS TABLE ─── -->
+  <div class="section-label">📋 Πρόσφατα Leads</div>
+  <div class="table-card">
+    <div class="table-head">
+      <span>Τα τελευταία 25 leads από τη βάση</span>
+      <span id="table-subtitle"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="leads" id="leads-table">
+        <thead>
+          <tr>
+            <th>Ημ/νία</th>
+            <th>Ονοματεπώνυμο</th>
+            <th>Ηλ.</th>
+            <th>Οικογ.</th>
+            <th>Παιδιά</th>
+            <th>Υ</th>
+            <th>Ζ</th>
+            <th>Σ</th>
+            <th>Budget</th>
+            <th>Στόχος</th>
+            <th>Επείγον</th>
+            <th>Email</th>
+            <th>Τηλ.</th>
+          </tr>
+        </thead>
+        <tbody id="leads-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- NEW DATA TOAST -->
+<div class="new-data-toast" id="new-data-toast" onclick="dismissToast()">
+  <div class="toast-icon">🔔</div>
+  <div class="toast-text">
+    <div class="toast-title" id="toast-title">Νέα συμπλήρωση!</div>
+    <div class="toast-sub">Κλικ για ανανέωση δεδομένων</div>
+  </div>
+</div>
+
+<script>
+/* ─── Disable animations for instant render ─── */
+Chart.defaults.animation = false;
+Chart.defaults.responsive = true;
+Chart.defaults.maintainAspectRatio = false;
+Chart.defaults.font.family = 'Nunito Sans, Arial, sans-serif';
+Chart.defaults.color = '#9aadbe';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+/* ─── Plugin: % labels inside donut slices ─── */
+const percentLabels = {
+  id: 'percentLabels',
+  afterDatasetsDraw(chart) {
+    if (chart.config.type !== 'doughnut') return;
+    const { ctx } = chart;
+    const dataset = chart.data.datasets[0];
+    const total = dataset.data.reduce((a, b) => Number(a) + Number(b), 0);
+    if (!total) return;
+    chart.getDatasetMeta(0).data.forEach((arc, i) => {
+      const val = Number(dataset.data[i]);
+      if (!val) return;
+      const pct = Math.round(val / total * 100);
+      if (pct < 5) return;
+      const mid = arc.startAngle + (arc.endAngle - arc.startAngle) / 2;
+      const r   = (arc.outerRadius + arc.innerRadius) / 2;
+      const x   = arc.x + Math.cos(mid) * r;
+      const y   = arc.y + Math.sin(mid) * r;
+      ctx.save();
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font         = 'bold 12px Nunito Sans, Arial, sans-serif';
+      ctx.fillStyle    = '#ffffff';
+      ctx.shadowColor  = 'rgba(0,0,0,0.7)';
+      ctx.shadowBlur   = 4;
+      ctx.fillText(pct + '%', x, y);
+      ctx.restore();
+    });
+  }
+};
+Chart.register(percentLabels);
+
+const charts = {};
+const C = (id, cfg) => {
+  if (charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if (!el) return;
+  charts[id] = new Chart(el.getContext('2d'), cfg);
+};
+
+/* Brand colors */
+const O = '#F47920', N = '#0d1b2a', G = '#C9A84C', B = '#4a9eda', P = '#9b59b6', GR = '#5fcc8a';
+const URGENCY_COLORS = { ΚΡΙΣΙΜΗ:'#e74c3c', ΥΨΗΛΗ:'#e67e22', ΜΕΤΡΙΑ:'#f1c40f', ΧΑΜΗΛΗ:'#2ecc71' };
+
+/* Helpers */
+const F = (r,k) => String(r[k] || '').trim();
+function avg(arr) {
+  const v = arr.map(Number).filter(n => !isNaN(n) && n > 0);
+  return v.length ? Math.round(v.reduce((a,b)=>a+b,0)/v.length) : 0;
+}
+function count(arr, val) { return arr.filter(x => x === val).length; }
+function countMap(arr) {
+  return arr.reduce((m,v) => { if (v !== '') m[v] = (m[v]||0)+1; return m; }, {});
+}
+function bins(arr, edges) {
+  const out = new Array(edges.length-1).fill(0);
+  arr.forEach(v => {
+    const n = Number(v);
+    if (!isNaN(n)) for (let i=0; i<edges.length-1; i++)
+      if (n >= edges[i] && n < edges[i+1]) { out[i]++; break; }
+  });
+  return out;
+}
+function parseGreekDate(raw) {
+  if (!raw) return null;
+  const datePart = raw.split(',')[0].trim();
+  const parts = datePart.includes('/') ? datePart.split('/') : null;
+  if (!parts || parts.length < 3) return null;
+  const d = new Date(parts[2] + '-' + parts[1].padStart(2,'0') + '-' + parts[0].padStart(2,'0'));
+  return isNaN(d) ? null : d;
+}
+
+/* Label mappings */
+const FUND_LABELS    = { none:'Χωρίς ταμείο', little:'Ελάχιστη', enough:'Μέτρια', fully:'Πλήρης' };
+const MARITAL_LABELS = { single:'Άγαμος/η', married:'Έγγαμος/η', divorced:'Διαζευγμένος/η', widowed:'Χήρος/α', single_parent:'Μονογονέας' };
+const OCC_LABELS     = { employee:'Μισθωτός', civil_servant:'Δημόσιος', freelancer:'Ελ. Επαγγ.', retired:'Συντ/χος', other:'Άλλο' };
+const CI_LABELS      = { em31:'Πλήρης', em7:'Βασική', none:'Όχι' };
+const DED_LABELS     = { none:'Χωρίς', annual:'Ετήσιο', per_incident:'Ανά περιστατικό' };
+const HOSP_LABELS    = { public:'Δημόσιο', private_doctor:'Ιδιωτικός Γιατρός', private_hospital:'Ιδιωτικό Νοσοκ.', abroad:'Εξωτερικό', big_priv:'Μεγάλο Ιδιωτικό' };
+const PENSION_LABELS = { none:'Καθόλου', small:'Μικρή', adequate:'Ικανοποιητική', big:'Μεγάλη' };
+const SAVINGS_LABELS = { yes:'Ναι', no:'Όχι', soon:'Σύντομα', family:'Οικογένεια' };
+const LIFE_CAP_LABELS= { '50k':'€50k', '100k':'€100k', '150k':'€150k', '200k':'€200k+' };
+
+/* ============================================================
+   MAIN RENDER
+   ============================================================ */
+function renderDashboard(result) {
+  document.getElementById('loading').style.display = 'none';
+
+  if (!result || !result.ok) {
+    const box = document.getElementById('error-box');
+    box.style.display = 'block';
+    box.textContent = 'Σφάλμα: ' + ((result && result.error) || 'Άγνωστο σφάλμα');
+    return;
+  }
+
+  document.getElementById('main').style.display = 'block';
+  document.getElementById('last-updated').textContent = new Date().toLocaleString('el-GR');
+
+  const rows = result.rows || [];
+  if (!rows.length) {
+    document.getElementById('kpi-total').textContent = '0';
+    document.getElementById('leads-body').innerHTML =
+      '<tr><td colspan="13" style="text-align:center;padding:32px;color:#9aadbe">Δεν υπάρχουν δεδομένα ακόμα. Όταν συμπληρωθεί το πρώτο ερωτηματολόγιο, θα εμφανιστούν εδώ.</td></tr>';
+    return;
+  }
+
+  // ── KPIs ──
+  const totalCount = rows.length;
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  weekStart.setHours(0,0,0,0);
+  const thisWeek = rows.filter(r => {
+    const d = parseGreekDate(F(r,'Ημερομηνία'));
+    return d && d >= weekStart;
+  }).length;
+
+  // Family count (≥2 insured, derived from marital + children)
+  const familyRows = rows.filter(r => {
+    const m = F(r,'Οικογ. Κατάσταση');
+    const kids = parseInt(F(r,'Παιδιά')) || 0;
+    return (m === 'married' && kids > 0) || (m === 'single_parent' && kids > 0) || m === 'married';
+  });
+  const famCount = familyRows.length;
+
+  document.getElementById('kpi-total').textContent  = totalCount;
+  document.getElementById('kpi-week').textContent   = thisWeek + ' αυτή την εβδομάδα';
+  document.getElementById('kpi-budget').textContent = '€' + avg(rows.map(r=>F(r,'Budget (€/μήνα)')));
+  document.getElementById('kpi-age').textContent    = avg(rows.map(r=>F(r,'Ηλικία')));
+  document.getElementById('kpi-health').textContent = avg(rows.map(r=>F(r,'Score Υγείας')));
+  document.getElementById('kpi-life').textContent   = avg(rows.map(r=>F(r,'Score Ζωής')));
+  document.getElementById('kpi-ret').textContent    = avg(rows.map(r=>F(r,'Score Σύνταξης')));
+  document.getElementById('kpi-fam').textContent    = famCount;
+  document.getElementById('kpi-fam-pct').textContent= totalCount ? Math.round(famCount/totalCount*100)+'%' : '—';
+
+  const urgMap = countMap(rows.map(r => F(r,'Επείγον')));
+  const topUrg = Object.entries(urgMap).sort((a,b) => b[1]-a[1])[0] || ['—',0];
+  document.getElementById('kpi-urg').textContent     = topUrg[0];
+  document.getElementById('kpi-urg-pct').textContent = totalCount ? Math.round(topUrg[1]/totalCount*100)+'% των leads' : '—';
+
+  // ── TIMELINE (per week) ──
+  const weekBuckets = {};
+  rows.forEach(r => {
+    const d = parseGreekDate(F(r,'Ημερομηνία'));
+    if (!d) return;
+    const tmp = new Date(d); tmp.setHours(0,0,0,0);
+    tmp.setDate(tmp.getDate() + 4 - (tmp.getDay() || 7));
+    const wy = tmp.getFullYear();
+    const wn = Math.ceil((((tmp - new Date(wy,0,1))/86400000) + 1) / 7);
+    const key = wy + '-W' + String(wn).padStart(2,'0');
+    weekBuckets[key] = (weekBuckets[key]||0) + 1;
+  });
+  const wKeys = Object.keys(weekBuckets).sort().slice(-12);
+  C('c-timeline',{
+    type:'bar',
+    data:{ labels: wKeys, datasets:[{ label:'Leads', data: wKeys.map(k=>weekBuckets[k]), backgroundColor:O, borderRadius:4 }] },
+    options:{
+      plugins:{ legend:{ display:false }},
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ font:{size:10}, color:'#9aadbe' }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── URGENCY DONUT ──
+  const urgOrder = ['ΚΡΙΣΙΜΗ','ΥΨΗΛΗ','ΜΕΤΡΙΑ','ΧΑΜΗΛΗ'];
+  const urgCounts = urgOrder.map(u => count(rows.map(r=>F(r,'Επείγον')), u));
+  C('c-urgency',{
+    type:'doughnut',
+    data:{ labels: urgOrder, datasets:[{ data: urgCounts, backgroundColor: urgOrder.map(u=>URGENCY_COLORS[u]), borderWidth:2, borderColor:'#0d1b2a' }] },
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ font:{size:11}, color:'#e8edf4', padding:10 } } }, cutout:'60%' },
+  });
+
+  // ── AVG SCORES BAR ──
+  const sH = avg(rows.map(r=>F(r,'Score Υγείας')));
+  const sL = avg(rows.map(r=>F(r,'Score Ζωής')));
+  const sR = avg(rows.map(r=>F(r,'Score Σύνταξης')));
+  C('c-scores',{
+    type:'bar',
+    data:{
+      labels:['Υγεία','Ζωή','Σύνταξη'],
+      datasets:[{ label:'Μέσο Score', data:[sH, sL, sR], backgroundColor:[O, G, B], borderRadius:6 }],
+    },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ min:0, max:100, ticks:{ color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ color:'#e8edf4', font:{ weight:'700' } }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── INCOME CONCERN DONUT ──
+  const incMap = countMap(rows.map(r=>F(r,'Ανησυχία Εισοδήματος')));
+  C('c-income',{
+    type:'doughnut',
+    data:{ labels:['Ναι, ανησυχώ','Όχι'], datasets:[{ data:[incMap.yes||0, incMap.no||0], backgroundColor:[O,'#5fcc8a'], borderWidth:2, borderColor:'#0d1b2a' }] },
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#e8edf4', font:{ size:11 }, padding:10 } } }, cutout:'55%' },
+  });
+
+  // ── AGE HISTOGRAM ──
+  const ageEdges = [18,25,30,35,40,45,50,55,60,65,100];
+  const ageLabels = ['18-25','25-30','30-35','35-40','40-45','45-50','50-55','55-60','60-65','65+'];
+  const ageData = bins(rows.map(r=>F(r,'Ηλικία')), ageEdges);
+  C('c-age',{
+    type:'bar',
+    data:{ labels: ageLabels, datasets:[{ label:'Leads', data: ageData, backgroundColor: B, borderRadius:4 }] },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ font:{size:10}, color:'#9aadbe' }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── MARITAL STATUS ──
+  const marMap = countMap(rows.map(r=>F(r,'Οικογ. Κατάσταση')));
+  const marKeys = Object.keys(marMap);
+  C('c-marital',{
+    type:'doughnut',
+    data:{ labels: marKeys.map(k=>MARITAL_LABELS[k]||k), datasets:[{ data: marKeys.map(k=>marMap[k]), backgroundColor:[O, G, B, P, '#5fcc8a'], borderWidth:2, borderColor:'#0d1b2a' }] },
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#e8edf4', font:{ size:11 }, padding:8 } } }, cutout:'55%' },
+  });
+
+  // ── CHILDREN COUNT ──
+  const kidsMap = countMap(rows.map(r=>F(r,'Παιδιά')));
+  const kidsKeys = ['0','1','2','3'];
+  C('c-kids',{
+    type:'bar',
+    data:{
+      labels: kidsKeys.map(k => k === '3' ? '3+' : k),
+      datasets:[{ label:'Leads', data: kidsKeys.map(k=>kidsMap[k]||0), backgroundColor:'#5fcc8a', borderRadius:4 }],
+    },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ color:'#e8edf4' }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── OCCUPATION ──
+  const occMap = countMap(rows.map(r=>F(r,'Επάγγελμα')));
+  const occKeys = Object.keys(occMap);
+  C('c-occupation',{
+    type:'bar',
+    data:{ labels: occKeys.map(k=>OCC_LABELS[k]||k), datasets:[{ label:'Leads', data: occKeys.map(k=>occMap[k]), backgroundColor: P, borderRadius:4 }] },
+    options:{
+      indexAxis:'y',
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        y:{ ticks:{ color:'#e8edf4', font:{ size:11 } }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── FUND SATISFACTION ──
+  const fundOrder = ['none','little','enough','fully'];
+  const fundMap = countMap(rows.map(r=>F(r,'Ικανοποίηση Ταμείου')));
+  C('c-fund',{
+    type:'bar',
+    data:{
+      labels: fundOrder.map(k=>FUND_LABELS[k]),
+      datasets:[{ label:'Leads', data: fundOrder.map(k=>fundMap[k]||0), backgroundColor:[ '#e74c3c', O, G, B ], borderRadius:4 }],
+    },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ color:'#e8edf4', font:{ size:11 } }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── HOSPITAL SEVERE ──
+  const hospMap = countMap(rows.map(r=>F(r,'Νοσοκ. Σοβαρό Περιστατικό')));
+  const hospKeys = Object.keys(hospMap);
+  C('c-hospital-severe',{
+    type:'bar',
+    data:{ labels: hospKeys.map(k=>HOSP_LABELS[k]||k), datasets:[{ label:'Leads', data: hospKeys.map(k=>hospMap[k]), backgroundColor: O, borderRadius:4 }] },
+    options:{
+      indexAxis:'y',
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        y:{ ticks:{ color:'#e8edf4', font:{ size:11 } }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── DEDUCTIBLE TYPE ──
+  const dedMap = countMap(rows.map(r=>F(r,'Εκπιπτόμενο')));
+  const dedKeys = Object.keys(dedMap);
+  C('c-ded',{
+    type:'doughnut',
+    data:{ labels: dedKeys.map(k=>DED_LABELS[k]||k), datasets:[{ data: dedKeys.map(k=>dedMap[k]), backgroundColor:[O, G, B], borderWidth:2, borderColor:'#0d1b2a' }] },
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#e8edf4', font:{ size:11 }, padding:8 } } }, cutout:'55%' },
+  });
+
+  // ── CI PREFERENCE (P7) ──
+  const ciMap = countMap(rows.map(r=>F(r,'Κρίσιμες Ασθένειες (P7)')));
+  const ciOrder = ['em31','em7','none'];
+  C('c-ci',{
+    type:'doughnut',
+    data:{ labels: ciOrder.map(k=>CI_LABELS[k]), datasets:[{ data: ciOrder.map(k=>ciMap[k]||0), backgroundColor:[O, G, '#7a8a9e'], borderWidth:2, borderColor:'#0d1b2a' }] },
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#e8edf4', font:{ size:11 }, padding:8 } } }, cutout:'55%' },
+  });
+
+  // ── MEDIPLAN (P9) ──
+  const mdpMap = countMap(rows.map(r=>F(r,'Επίδομα Νοσηλείας (P9)')));
+  C('c-mdp',{
+    type:'doughnut',
+    data:{ labels:['Ναι','Όχι'], datasets:[{ data:[mdpMap.yes||0, mdpMap.no||0], backgroundColor:[O, '#7a8a9e'], borderWidth:2, borderColor:'#0d1b2a' }] },
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#e8edf4', font:{ size:11 }, padding:8 } } }, cutout:'55%' },
+  });
+
+  // ── BUDGET HISTOGRAM ──
+  const budgetEdges = [0,50,80,100,120,150,200,250,300,500];
+  const budgetLabels = ['<€50','€50-80','€80-100','€100-120','€120-150','€150-200','€200-250','€250-300','€300+'];
+  const budgetData = bins(rows.map(r=>F(r,'Budget (€/μήνα)')), budgetEdges);
+  C('c-budget',{
+    type:'bar',
+    data:{ labels: budgetLabels, datasets:[{ label:'Leads', data: budgetData, backgroundColor: G, borderRadius:4 }] },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ font:{size:10}, color:'#9aadbe' }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── LIFE CAPITAL ──
+  const lifeMap = countMap(rows.map(r=>F(r,'Επιθυμητό Κεφάλαιο Ζωής')));
+  const lifeOrder = ['50k','100k','150k','200k'];
+  C('c-life-cap',{
+    type:'bar',
+    data:{
+      labels: lifeOrder.map(k=>LIFE_CAP_LABELS[k]),
+      datasets:[{ label:'Leads', data: lifeOrder.map(k=>lifeMap[k]||0), backgroundColor: G, borderRadius:4 }],
+    },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ color:'#e8edf4' }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── PENSION ESTIMATE ──
+  const pensionOrder = ['none','small','adequate','big'];
+  const pensionMap = countMap(rows.map(r=>F(r,'Εκτίμηση Σύνταξης')));
+  C('c-pension',{
+    type:'bar',
+    data:{
+      labels: pensionOrder.map(k=>PENSION_LABELS[k]),
+      datasets:[{ label:'Leads', data: pensionOrder.map(k=>pensionMap[k]||0), backgroundColor:[ '#e74c3c', O, G, '#5fcc8a' ], borderRadius:4 }],
+    },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ color:'#e8edf4', font:{ size:11 } }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── TARGET AMOUNT ──
+  const targetAmounts = rows.map(r=>F(r,'Στόχος Αποταμ. (€)'));
+  const targetAmtMap = countMap(targetAmounts);
+  const tAmtOrder = ['20000','50000','100000','200000','none'];
+  const tAmtLabels = ['€20k','€50k','€100k','€200k+','Δεν θέλει'];
+  C('c-target-amt',{
+    type:'bar',
+    data:{
+      labels: tAmtLabels,
+      datasets:[{ label:'Leads', data: tAmtOrder.map(k=>targetAmtMap[k]||0), backgroundColor:[ B, G, O, '#5fcc8a', '#7a8a9e' ], borderRadius:4 }],
+    },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ color:'#e8edf4' }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── TARGET YEARS HISTOGRAM ──
+  const yearEdges = [0,10,15,20,25,30,40,55];
+  const yearLabels = ['5-10','10-15','15-20','20-25','25-30','30-40','40+'];
+  const yearData = bins(
+    rows.map(r => F(r,'Έτη Στόχου')).filter(v => v && v !== '0'),
+    yearEdges
+  );
+  C('c-target-years',{
+    type:'bar',
+    data:{ labels: yearLabels, datasets:[{ label:'Leads', data: yearData, backgroundColor: B, borderRadius:4 }] },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color:'#9aadbe' }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        x:{ ticks:{ color:'#e8edf4', font:{ size:11 } }, grid:{ display:false } },
+      },
+    },
+  });
+
+  // ── EXISTING SAVINGS PLAN ──
+  const savOrder = ['no','soon','yes','family'];
+  const savMap = countMap(rows.map(r=>F(r,'Σχέδιο Αποταμίευσης')));
+  C('c-savings',{
+    type:'doughnut',
+    data:{
+      labels: savOrder.map(k=>SAVINGS_LABELS[k]),
+      datasets:[{ data: savOrder.map(k=>savMap[k]||0), backgroundColor:[ '#e74c3c', O, '#5fcc8a', P ], borderWidth:2, borderColor:'#0d1b2a' }],
+    },
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#e8edf4', font:{ size:11 }, padding:8 } } }, cutout:'55%' },
+  });
+
+  // ── RECENT LEADS TABLE ──
+  const show = rows.slice(0, 25);
+  document.getElementById('table-subtitle').textContent = `${show.length} από ${totalCount}`;
+  const tbody = document.getElementById('leads-body');
+  tbody.innerHTML = show.map(r => {
+    const urg = F(r,'Επείγον');
+    const sHr = parseInt(F(r,'Score Υγείας'))||0;
+    const sLr = parseInt(F(r,'Score Ζωής'))||0;
+    const sRr = parseInt(F(r,'Score Σύνταξης'))||0;
+    const targetVal = F(r,'Στόχος Αποταμ. (€)');
+    const targetDisplay = targetVal === 'none' ? '—' :
+                          targetVal ? '€' + (parseInt(targetVal)/1000) + 'k' : '—';
+    return `<tr>
+      <td style="white-space:nowrap;font-size:11px">${F(r,'Ημερομηνία').split(',')[0] || '—'}</td>
+      <td><strong>${F(r,'Ονοματεπώνυμο') || '—'}</strong></td>
+      <td>${F(r,'Ηλικία') || '—'}</td>
+      <td style="font-size:11px">${MARITAL_LABELS[F(r,'Οικογ. Κατάσταση')] || '—'}</td>
+      <td style="font-size:11px;text-align:center">${F(r,'Παιδιά') || '0'}</td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-bar"   style="width:${Math.min(sHr,60)}px"></div>
+          <span>${sHr}</span>
+        </div>
+      </td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-bar l" style="width:${Math.min(sLr,60)}px"></div>
+          <span>${sLr}</span>
+        </div>
+      </td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-bar r" style="width:${Math.min(sRr,60)}px"></div>
+          <span>${sRr}</span>
+        </div>
+      </td>
+      <td style="white-space:nowrap">€${F(r,'Budget (€/μήνα)') || '—'}</td>
+      <td style="white-space:nowrap;font-size:11px">${targetDisplay}</td>
+      <td><span class="urg-badge urg-${urg}">${urg || '—'}</span></td>
+      <td style="font-size:11px"><a href="mailto:${F(r,'Email')}">${F(r,'Email') || '—'}</a></td>
+      <td style="white-space:nowrap"><a href="tel:${F(r,'Τηλέφωνο')}">${F(r,'Τηλέφωνο') || '—'}</a></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── POLLING — Live ανίχνευση νέων συμπληρώσεων ─── */
+let _lastKnownCount = 0;
+let _pollTimer = null;
+const POLL_INTERVAL_MS = 20000; // κάθε 20 δευτερόλεπτα
+
+function startPolling() {
+  if (_pollTimer) clearInterval(_pollTimer);
+  _pollTimer = setInterval(checkForNewRows, POLL_INTERVAL_MS);
+}
+
+function checkForNewRows() {
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (!result || !result.ok) return;
+      if (_lastKnownCount > 0 && result.count > _lastKnownCount) {
+        const newCount = result.count - _lastKnownCount;
+        showToast(newCount);
+      }
+    })
+    .withFailureHandler(function() { /* σιωπηλή αποτυχία */ })
+    .getRowCount();
+}
+
+function showToast(newCount) {
+  const toast = document.getElementById('new-data-toast');
+  const title = document.getElementById('toast-title');
+  if (!toast) return;
+  title.textContent = newCount === 1
+    ? '🎉 Νέα συμπλήρωση!'
+    : `🎉 ${newCount} νέες συμπληρώσεις!`;
+  toast.classList.add('visible');
+  // Auto-ανανέωση μετά από 3 δευτερόλεπτα αν ο χρήστης δεν κάνει κλικ
+  setTimeout(function() {
+    if (toast.classList.contains('visible')) {
+      dismissToast();
+      loadData();
+    }
+  }, 3000);
+}
+
+function dismissToast() {
+  const toast = document.getElementById('new-data-toast');
+  if (toast) toast.classList.remove('visible');
+  loadData();
+}
+
+/* ─── LOAD DATA via Apps Script ─── */
+function loadData() {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('main').style.display = 'none';
+  document.getElementById('error-box').style.display = 'none';
+  // Κλείσε το toast αν είναι ανοιχτό
+  const toast = document.getElementById('new-data-toast');
+  if (toast) toast.classList.remove('visible');
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      renderDashboard(result);
+      // Μετά από κάθε φόρτωση, ενημέρωσε το count και ξεκίνα/συνέχισε το polling
+      if (result && result.ok) {
+        _lastKnownCount = (result.rows || []).length;
+      }
+      startPolling();
+    })
+    .withFailureHandler(function(err) {
+      document.getElementById('loading').style.display = 'none';
+      const box = document.getElementById('error-box');
+      box.style.display = 'block';
+      box.textContent = 'Σφάλμα φόρτωσης: ' + (err.message || err);
+      startPolling(); // συνέχισε polling ακόμα και αν αποτύχει η φόρτωση
+    })
+    .getData();
+}
+
+loadData();
+</script>
+
+</body>
+</html>
