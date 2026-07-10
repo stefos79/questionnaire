@@ -14,8 +14,8 @@
   const SVC = {
     ej_key:    'hQKYEZW4bK9xY2BJxqtXE',
     ej_svc:    'service_7d8xcmm',
-    ej_client: 'template_ky8g7hp',
-    ej_agent:  'template_cp85icg',
+    ej_client: 'template_p4ufmc3',
+    ej_agent:  'template_0mvt3uj',
     sheets_url:'https://script.google.com/macros/s/AKfycbxeyXOn3_iVydydbu1XDgSH8xd8srECLZSMJ4YycYEVb-4j8HCqtzGnyhYXvIY1H3lwiA/exec',
   };
 
