@@ -12,8 +12,8 @@
   // SERVICE CONFIG
   // ════════════════════════════════════════════════════════════════
   const SVC = {
-    ej_key:    '3qFxGixe2gHChiZ0T',
-    ej_svc:    'service_nfxu98b',
+    ej_key:    'hQKYEZW4bK9xY2BJxqtXE',
+    ej_svc:    'service_7d8xcmm',
     ej_client: 'template_ky8g7hp',
     ej_agent:  'template_cp85icg',
     sheets_url:'https://script.google.com/macros/s/AKfycbxeyXOn3_iVydydbu1XDgSH8xd8srECLZSMJ4YycYEVb-4j8HCqtzGnyhYXvIY1H3lwiA/exec',
