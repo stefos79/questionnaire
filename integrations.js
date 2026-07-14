@@ -16,7 +16,7 @@
     ej_svc:    'service_7d8xcmm',
     ej_client: 'template_p4ufmc3',
     ej_agent:  'template_0mvt3uj',
-    sheets_url:'',
+    sheets_url:'https://script.google.com/macros/s/AKfycbzDkwlmggxyIiocDUSPup70hDLHMS_ot0ssWW-UxGbGr-PlVsxf5lgzS99O-hxEUBlH/exec',
   };
 
   let _emailSent = false;
